@@ -1,305 +1,372 @@
 {
   "Audrey Moore Rec Center": {
+    "kind": "rec_center",
     "lat": 38.8132249,
     "lng": -77.1708092,
     "query": "8100 Braddock Road, Annandale, VA"
   },
   "Bach to Rock McLean": {
+    "kind": "other",
     "lat": 38.9365236,
     "lng": -77.1786388,
     "query": "1360 Beverly Rd, McLean, VA"
   },
   "Belle View Elementary School": {
+    "kind": "other",
     "lat": 38.7725702,
     "lng": -77.0612688,
     "query": "6701 Fort Hunt Rd, Alexandria, VA"
   },
   "Black Belt Academy Fairfax": {
+    "kind": "other",
     "lat": 38.8580456,
     "lng": -77.3346002,
     "query": "11230 Waples Mill Rd, Fairfax, VA"
   },
   "Bull Run Park": {
+    "kind": "other",
     "lat": 38.8026767,
     "lng": -77.4785714,
     "query": "7700 Bull Run Dr, Centreville, VA"
   },
   "Burke Lake Golf Course": {
+    "kind": "other",
     "lat": 38.8115303,
     "lng": -77.3252764,
     "query": "7315 Ox Rd, Fairfax Station, VA"
   },
   "Burke Lake Park": {
+    "kind": "other",
     "lat": 38.8115303,
     "lng": -77.3252764,
     "query": "7315 Ox Rd, Fairfax Station, VA"
   },
   "Clemyjontri Park": {
+    "kind": "other",
     "lat": 38.9452874,
     "lng": -77.1531855,
     "query": "6317 Georgetown Pike, McLean, VA"
   },
   "Collingwood Park": {
+    "kind": "other",
     "lat": 38.7351125,
     "lng": -77.0519793,
     "query": "Collingwood Park, Virginia"
   },
   "Colvin Run Mill": {
+    "kind": "other",
     "lat": 38.9690645,
     "lng": -77.2933176,
     "query": "10017 Colvin Run Rd, Great Falls, VA"
   },
   "Craftspace": {
+    "kind": "other",
     "lat": 38.9378649,
     "lng": -77.4056735,
     "query": "2709 West Ox Rd, Herndon, VA"
   },
   "Cub Run Rec Center": {
+    "kind": "rec_center",
     "lat": 38.8901489,
     "lng": -77.4684275,
     "query": "4630 Stonecroft Blvd, Chantilly, VA"
   },
   "Cunningham Park Elementary School": {
+    "kind": "other",
     "lat": 38.892247,
     "lng": -77.250114,
     "query": "1001 Park St SE, Vienna, VA"
   },
   "Deer Park Elementary School": {
+    "kind": "other",
     "lat": 38.8554317,
     "lng": -77.4709953,
     "query": "15109 Carlbern Dr, Centreville, VA"
   },
   "Ellanor C. Lawrence Park": {
+    "kind": "other",
     "lat": 38.8665483,
     "lng": -77.4287704,
     "query": "5040 Walney Rd, Chantilly, VA"
   },
   "Fairfax Fencers": {
+    "kind": "other",
     "lat": 38.8580456,
     "lng": -77.3346002,
     "query": "11230 Waples Mill Rd, Fairfax, VA"
   },
   "Fairfax Ice Arena": {
+    "kind": "other",
     "lat": 38.8486715,
     "lng": -77.2724089,
     "query": "3779 Pickett Rd, Fairfax, VA"
   },
   "Franconia Rec Center": {
+    "kind": "rec_center",
     "lat": 38.7740031,
     "lng": -77.1068542,
     "query": "6601 Telegraph Road, Alexandria, VA"
   },
   "Frying Pan Park": {
+    "kind": "other",
     "lat": 38.9378649,
     "lng": -77.4056735,
     "query": "2709 West Ox Rd, Herndon, VA"
   },
   "George Washington Rec Center": {
+    "kind": "rec_center",
     "lat": 38.7265,
     "lng": -77.086,
     "query": "manual"
   },
   "Green Spring Gardens Park": {
+    "kind": "other",
     "lat": 38.8245605,
     "lng": -77.1574232,
     "query": "Green Spring Gardens Park, Virginia"
   },
   "Greenbriar Park": {
+    "kind": "other",
     "lat": 38.8387724,
     "lng": -77.3037065,
     "query": "4601 Sideburn Rd, Fairfax, VA"
   },
   "Hidden Oaks Nature Center": {
+    "kind": "other",
     "lat": 38.8379362,
     "lng": -77.2086687,
     "query": "4020 Hummer Rd, Annandale, VA"
   },
   "Hidden Pond Nature Center": {
+    "kind": "other",
     "lat": 38.7722857,
     "lng": -77.2387404,
     "query": "8511 Greeley Blvd, Springfield, VA"
   },
   "Historic Huntley": {
+    "kind": "other",
     "lat": 38.765927,
     "lng": -77.0950065,
     "query": "Historic Huntley, Virginia"
   },
   "Historic Oak Hill House": {
+    "kind": "other",
     "lat": 38.953,
     "lng": -77.37,
     "query": "manual"
   },
   "Huntley Meadows Park": {
+    "kind": "other",
     "lat": 38.7566753,
     "lng": -77.0983679,
     "query": "3701 Lockheed Blvd, Alexandria, VA"
   },
   "Jefferson Golf Course": {
+    "kind": "other",
     "lat": 38.8763301,
     "lng": -77.2156817,
     "query": "7900 Lee Hwy, Falls Church, VA"
   },
   "Jhoon Rhee Falls Church": {
+    "kind": "other",
     "lat": 38.8745,
     "lng": -77.17,
     "query": "manual"
   },
   "Lake Accotink Park": {
+    "kind": "other",
     "lat": 38.793911,
     "lng": -77.201474,
     "query": "7500 Accotink Park Rd, Springfield, VA"
   },
   "Lake Fairfax Park": {
+    "kind": "other",
     "lat": 38.961164,
     "lng": -77.3186517,
     "query": "Lake Fairfax Park, Virginia"
   },
   "Lead By Example Fair Oaks": {
+    "kind": "other",
     "lat": 38.8626777,
     "lng": -77.3588119,
     "query": "11750 Fair Oaks Mall, Fairfax, VA"
   },
   "Legacy Martial Arts": {
+    "kind": "other",
     "lat": 38.8580456,
     "lng": -77.3346002,
     "query": "11230 Waples Mill Rd, Fairfax, VA"
   },
   "Lemon Road Elementary School": {
+    "kind": "other",
     "lat": 38.9042279,
     "lng": -77.195826,
     "query": "7230 Idylwood Rd, Falls Church, VA"
   },
   "Little Run Elementary School": {
+    "kind": "other",
     "lat": 38.8253713,
     "lng": -77.2665506,
     "query": "4511 Olley Ln, Fairfax, VA"
   },
   "McLean Central Park": {
+    "kind": "other",
     "lat": 38.9315043,
     "lng": -77.180784,
     "query": "1468 Chain Bridge Rd, McLean, VA"
   },
   "Mount Vernon Rec Center": {
+    "kind": "rec_center",
     "lat": 38.7742696,
     "lng": -77.0633647,
     "query": "2017 Belle View Blvd, Alexandria, VA"
   },
   "NOVA Fencing Club": {
+    "kind": "other",
     "lat": 38.855226,
     "lng": -77.3296098,
     "query": "11130 Fairfax Blvd, Fairfax, VA"
   },
   "Navy Elementary School": {
+    "kind": "other",
     "lat": 38.8891972,
     "lng": -77.3791494,
     "query": "3500 West Ox Rd, Fairfax, VA"
   },
   "Nottoway Park": {
+    "kind": "other",
     "lat": 38.9174346,
     "lng": -77.2450245,
     "query": "9601 Courthouse Rd, Vienna, VA"
   },
   "Oak View Elementary School": {
+    "kind": "other",
     "lat": 38.8189646,
     "lng": -77.30991,
     "query": "Oak View Elementary School, Virginia"
   },
   "Oakmont Rec Center": {
+    "kind": "rec_center",
     "lat": 38.8751492,
     "lng": -77.3141564,
     "query": "3200 Jermantown Road, Oakton, VA"
   },
   "Oakton Elementary School": {
+    "kind": "other",
     "lat": 38.8800147,
     "lng": -77.3050131,
     "query": "3000 Chain Bridge Rd, Oakton, VA"
   },
   "Orange Hunt Elementary School": {
+    "kind": "other",
     "lat": 38.7655003,
     "lng": -77.2559851,
     "query": "6820 Sydenstricker Rd, Springfield, VA"
   },
   "Patriot Park North": {
+    "kind": "other",
     "lat": 38.8487838,
     "lng": -77.4536897,
     "query": "12150 Willow Creek Dr, Fairfax, VA"
   },
   "Pinecrest Golf Course": {
+    "kind": "other",
     "lat": 38.826467,
     "lng": -77.1614039,
     "query": "6600 Little River Turnpike, Alexandria, VA"
   },
   "Providence Rec Center": {
+    "kind": "rec_center",
     "lat": 38.8613656,
     "lng": -77.2108239,
     "query": "7525 Marc Drive, Falls Church, VA"
   },
   "Riverbend Park": {
+    "kind": "other",
     "lat": 39.0187357,
     "lng": -77.2461667,
     "query": "8700 Potomac Hills St, Great Falls, VA"
   },
   "Roundtree Park": {
+    "kind": "other",
     "lat": 38.8512528,
     "lng": -77.1874939,
     "query": "7413 Roundtree Rd, Falls Church, VA"
   },
   "South Run Rec Center": {
+    "kind": "rec_center",
     "lat": 38.747326,
     "lng": -77.2764408,
     "query": "7550 Reservation Drive, Springfield, VA"
   },
   "Spindle Sears House": {
+    "kind": "other",
     "lat": 38.8333523,
     "lng": -77.0512137,
     "query": "9000 Richmond Hwy, Alexandria, VA"
   },
   "Spring Hill Elementary School": {
+    "kind": "other",
     "lat": 38.9388531,
     "lng": -77.2280317,
     "query": "8201 Lewinsville Rd, McLean, VA"
   },
   "Spring Hill Rec Center": {
+    "kind": "rec_center",
     "lat": 38.934,
     "lng": -77.2005,
     "query": "manual"
   },
   "Stone Mansion": {
+    "kind": "other",
     "lat": 38.9174346,
     "lng": -77.2450245,
     "query": "9601 Courthouse Rd, Vienna, VA"
   },
   "Stratton Woods Park": {
+    "kind": "other",
     "lat": 38.8804735,
     "lng": -77.314298,
     "query": "11001 Miller Rd, Oakton, VA"
   },
   "Sully CommCtr": {
+    "kind": "other",
     "lat": 38.8580998,
     "lng": -77.4046193,
     "query": "3900 Stringfellow Rd, Chantilly, VA"
   },
+  "Sully Community Center": {
+    "kind": "other",
+    "lat": 38.8580998,
+    "lng": -77.4046193,
+    "query": "3900 Stringfellow Rd, Chantilly, VA (Sully Community Center)"
+  },
   "Sully Historic Site": {
+    "kind": "other",
     "lat": 38.9076685,
     "lng": -77.4308404,
     "query": "3650 Historic Sully Way, Chantilly, VA"
   },
   "Turner Farm Park": {
+    "kind": "other",
     "lat": 39.0138417,
     "lng": -77.3089901,
     "query": "925 Springvale Rd, Great Falls, VA"
   },
   "Water Mine": {
+    "kind": "other",
     "lat": 38.9595,
     "lng": -77.319,
     "query": "manual"
   },
   "West Springfield Elementary School": {
+    "kind": "other",
     "lat": 38.7692209,
     "lng": -77.219918,
     "query": "West Springfield Elementary School, Virginia"
   },
   "Woodson High School": {
+    "kind": "other",
     "lat": 38.8399534,
     "lng": -77.2765241,
     "query": "9525 Main St, Fairfax, VA"

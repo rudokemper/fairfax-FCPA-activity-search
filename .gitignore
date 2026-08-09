@@ -1,7 +1,3 @@
-# Generated reports
-outputs/*
-!outputs/.gitkeep
-
 # Python
 __pycache__/
 *.py[cod]
@@ -14,6 +10,7 @@ build/
 venv/
 .env
 .python-version
+_site/
 
 # Editors / OS
 .idea/

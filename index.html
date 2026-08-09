@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fairfax FCPA Activities</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+:root {
+  --bg: #f4f6f4;
+  --ink: #1c2420;
+  --muted: #5c6a62;
+  --line: #d5ddd7;
+  --panel: #ffffff;
+  --accent: #0f6a4f;
+  --accent-soft: #e5f3ec;
+  --warn: #8a5a00;
+  --rec: #0f6a4f;
+  --other: #c45e12;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font: 16px/1.45 "Source Sans 3", "Segoe UI", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 500px at 10% -10%, #dceee4 0%, transparent 55%),
+    var(--bg);
+}
+header {
+  padding: 1.5rem 1.25rem 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+h1 {
+  margin: 0 0 0.35rem;
+  font: 700 1.75rem/1.2 "Fraunces", Georgia, serif;
+  letter-spacing: -0.02em;
+}
+.meta, .muted { color: var(--muted); }
+.meta { margin: 0 0 0.75rem; }
+.howto {
+  margin: 0.85rem 0 0;
+  max-width: 52rem;
+  padding: 0.85rem 1rem;
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--line));
+  border-radius: 10px;
+  color: var(--ink);
+}
+.howto a {
+  color: var(--accent);
+  font-weight: 650;
+}
+.filters {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: color-mix(in srgb, var(--bg) 88%, white);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+  padding: 0.75rem 1.25rem;
+}
+.filters-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr auto;
+  align-items: end;
+}
+label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+input, select, button {
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  background: var(--panel);
+}
+input:focus, select:focus {
+  outline: 2px solid color-mix(in srgb, var(--accent) 45%, white);
+  border-color: var(--accent);
+}
+button {
+  cursor: pointer;
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+  color: var(--accent);
+  font-weight: 650;
+}
+#visible-count {
+  max-width: 1100px;
+  margin: 0.75rem auto 0;
+  padding: 0 1.25rem;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+.map-panel {
+  max-width: 1100px;
+  margin: 0.85rem auto 0;
+  padding: 0 1.25rem;
+}
+.map-panel h2 {
+  margin: 0 0 0.45rem;
+  font: 650 1rem/1.3 "Fraunces", Georgia, serif;
+}
+.map-legend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.map-legend span::before {
+  content: "";
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  margin-right: 0.35rem;
+  vertical-align: -1px;
+}
+.map-legend .rec::before { background: var(--rec); }
+.map-legend .other::before { background: var(--other); }
+#map {
+  height: 320px;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #dde5df;
+  z-index: 1;
+}
+.map-note {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem 3rem;
+}
+.category { margin: 1.75rem 0; }
+.category h2 {
+  margin: 0 0 0.85rem;
+  font: 650 1.15rem/1.3 "Fraunces", Georgia, serif;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.4rem;
+}
+.category h2 .count { color: var(--muted); font-weight: 500; }
+.activity {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  margin: 0 0 0.85rem;
+}
+.activity h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+.desc { margin: 0 0 0.75rem; color: var(--muted); }
+.table-wrap { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.45rem 0.55rem;
+  border-top: 1px solid var(--line);
+}
+th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  border-top: 0;
+}
+tr[hidden], .activity[hidden], .category[hidden] { display: none; }
+.empty {
+  display: none;
+  margin: 2rem 0;
+  padding: 1.25rem;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  color: var(--warn);
+  background: #fff9ef;
+}
+.empty.show { display: block; }
+.loading, .error {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1.25rem;
+  color: var(--muted);
+}
+.error { color: var(--warn); }
+@media (max-width: 1000px) {
+  .filters-inner { grid-template-columns: 1fr 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  .filters-inner { grid-template-columns: 1fr; }
+  #map { height: 260px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Fairfax FCPA Activities</h1>
+  <p class="meta" id="meta">Loading catalog…</p>
+  <p class="howto">
+    This page is a browseable index of Fairfax County Park Authority classes, camps, and events.
+    Use the filters below to narrow results by age, category, place, or status.
+    To register (or waitlist), open the activity on the official
+    <a id="search-link" href="https://fairfax.usedirect.com/FairfaxFCPAWeb/Activities/Search.aspx" target="_blank" rel="noopener noreferrer">FCPA Activities Search</a>
+    and sign up there.
+  </p>
+</header>
+<div class="filters">
+  <div class="filters-inner">
+    <label>Search
+      <input id="q" type="search" placeholder="Title, description, session, place…" autocomplete="off">
+    </label>
+    <label>Age range
+      <select id="age"><option value="">All ages</option></select>
+    </label>
+    <label>Category
+      <select id="category"><option value="">All categories</option></select>
+    </label>
+    <label>Place
+      <select id="place"><option value="">All places</option></select>
+    </label>
+    <label>Status
+      <select id="status"><option value="">All statuses</option></select>
+    </label>
+    <label>&nbsp;<button type="button" id="reset">Reset</button></label>
+  </div>
+</div>
+<p id="visible-count"></p>
+<section class="map-panel">
+  <h2>Locations</h2>
+  <div class="map-legend">
+    <span class="rec">Rec centers</span>
+    <span class="other">Parks, schools &amp; other sites</span>
+  </div>
+  <div id="map" role="img" aria-label="Map of activity locations"></div>
+  <p class="map-note" id="map-note"></p>
+</section>
+<main>
+  <div id="empty" class="empty">No activities match the current filters.</div>
+  <div id="catalog"></div>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="data.js"></script>
+<script>
+(() => {
+  const q = document.getElementById("q");
+  const age = document.getElementById("age");
+  const category = document.getElementById("category");
+  const place = document.getElementById("place");
+  const status = document.getElementById("status");
+  const reset = document.getElementById("reset");
+  const empty = document.getElementById("empty");
+  const visibleCount = document.getElementById("visible-count");
+  const mapNote = document.getElementById("map-note");
+  const catalog = document.getElementById("catalog");
+  const meta = document.getElementById("meta");
+  const searchLink = document.getElementById("search-link");
+  const FILTER_KEYS = ["q", "age", "category", "place", "status"];
+  const fields = { q, age, category, place, status };
+
+  const map = L.map("map", { scrollWheelZoom: false }).setView([38.85, -77.27], 10);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 18,
+    attribution: "&copy; OpenStreetMap",
+  }).addTo(map);
+  const markers = L.layerGroup().addTo(map);
+
+  function escapeHtml(text) {
+    return String(text ?? "").replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+    })[c]);
+  }
+
+  function circleIcon(kind) {
+    const color = kind === "rec_center" ? "#0f6a4f" : "#c45e12";
+    return L.divIcon({
+      className: "",
+      html: `<span style="display:block;width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.25)"></span>`,
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
+    });
+  }
+
+  function fillSelect(select, values, allLabel) {
+    const prev = select.value;
+    select.innerHTML = `<option value="">${escapeHtml(allLabel)}</option>` +
+      values.map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+    select.value = prev && values.includes(prev) ? prev : "";
+  }
+
+  function sessionMatches(activity, session, { ag, cat, pl, st, needle }) {
+    if (needle && !(activity._search || "").includes(needle)) return false;
+    if (cat && activity.category !== cat) return false;
+    if (pl && session.place !== pl) return false;
+    if (st && session.status !== st) return false;
+    if (ag && !(session.age_ranges || []).includes(ag)) return false;
+    return true;
+  }
+
+  /** Rebuild every dropdown from sessions that still match the other filters. */
+  function refreshFilterOptions() {
+    const data = window.__FCPA_DATA__;
+    if (!data) return;
+    const needle = q.value.trim().toLowerCase();
+    const ag = age.value;
+    const cat = category.value;
+    const pl = place.value;
+    const st = status.value;
+    const ages = new Set();
+    const categories = new Set();
+    const places = new Set();
+    const statuses = new Set();
+
+    for (const activity of data.activities) {
+      for (const session of activity.sessions) {
+        // Each set ignores its own dimension so the user can change that filter.
+        if (sessionMatches(activity, session, { ag: "", cat, pl, st, needle })) {
+          for (const a of session.age_ranges || []) ages.add(a);
+        }
+        if (sessionMatches(activity, session, { ag, cat: "", pl, st, needle })) {
+          categories.add(activity.category);
+        }
+        if (sessionMatches(activity, session, { ag, cat, pl: "", st, needle })) {
+          if (session.place) places.add(session.place);
+        }
+        if (sessionMatches(activity, session, { ag, cat, pl, st: "", needle })) {
+          if (session.status) statuses.add(session.status);
+        }
+      }
+    }
+
+    const ageOrder = data.age_ranges || [];
+    fillSelect(age, ageOrder.filter((a) => ages.has(a)), "All ages");
+    fillSelect(category, [...categories].sort(), "All categories");
+    fillSelect(place, [...places].sort(), "All places");
+    fillSelect(status, [...statuses].sort(), "All statuses");
+  }
+
+  function searchBlob(activity) {
+    const parts = [activity.title, activity.description, activity.category];
+    for (const s of activity.sessions) {
+      parts.push(s.session, s.place, s.schedule, s.ages, s.seats, s.signup, s.status, ...(s.age_ranges || []));
+    }
+    return parts.join(" ").toLowerCase();
+  }
+
+  function render(data) {
+    if (data.search_url) searchLink.href = data.search_url;
+    for (const activity of data.activities) {
+      activity._search = searchBlob(activity);
+    }
+
+    const byCategory = new Map();
+    for (const activity of data.activities) {
+      if (!byCategory.has(activity.category)) byCategory.set(activity.category, []);
+      byCategory.get(activity.category).push(activity);
+    }
+
+    const sections = [];
+    for (const [cat, acts] of byCategory) {
+      const cards = acts.map((activity) => {
+        const placesAttr = [...new Set(activity.sessions.map((s) => s.place).filter(Boolean))].sort().join("|");
+        const statusesAttr = [...new Set(activity.sessions.map((s) => s.status).filter(Boolean))].sort().join("|");
+        const agesAttr = [...new Set(activity.sessions.flatMap((s) => s.age_ranges || []))].sort().join("|");
+        const rows = activity.sessions.map((s) => {
+          const rowAges = (s.age_ranges || []).join("|");
+          return `<tr data-place="${escapeHtml(s.place)}" data-status="${escapeHtml(s.status)}" data-ages="${escapeHtml(rowAges)}">
+            <td>${escapeHtml(s.session)}</td>
+            <td>${escapeHtml(s.place)}</td>
+            <td>${escapeHtml(s.schedule)}</td>
+            <td>${escapeHtml(s.ages)}</td>
+            <td>${escapeHtml(s.seats)}</td>
+            <td>${escapeHtml(s.signup)}</td>
+            <td>${escapeHtml(s.status)}</td>
+          </tr>`;
+        }).join("");
+        const table = rows
+          ? `<div class="table-wrap"><table><thead><tr>
+              <th>Session</th><th>Place</th><th>Schedule</th><th>Ages</th>
+              <th>Seats</th><th>Sign Up</th><th>Status</th>
+            </tr></thead><tbody>${rows}</tbody></table></div>`
+          : `<p class="muted">No session rows.</p>`;
+        const desc = activity.description
+          ? `<p class="desc">${escapeHtml(activity.description)}</p>`
+          : "";
+        return `<article class="activity"
+          data-category="${escapeHtml(activity.category)}"
+          data-places="${escapeHtml(placesAttr)}"
+          data-statuses="${escapeHtml(statusesAttr)}"
+          data-ages="${escapeHtml(agesAttr)}"
+          data-search="${escapeHtml(activity._search)}">
+          <h3>${escapeHtml(activity.title)}</h3>
+          ${desc}${table}
+        </article>`;
+      }).join("");
+      sections.push(`<section class="category" data-category="${escapeHtml(cat)}">
+        <h2>${escapeHtml(cat)} <span class="count" data-count="${acts.length}">(${acts.length})</span></h2>
+        ${cards}
+      </section>`);
+    }
+    catalog.innerHTML = sections.join("");
+    meta.textContent = `Generated ${data.generated} · ${data.activities.length} activities across ${byCategory.size} categories.`;
+    window.__placeCoords = data.place_coords || {};
+    readUrl();
+    apply();
+  }
+
+  function hasToken(attr, value) {
+    return !value || (attr || "").split("|").includes(value);
+  }
+
+  function visiblePlaces() {
+    const counts = new Map();
+    for (const activity of catalog.querySelectorAll(".activity")) {
+      if (activity.hidden) continue;
+      for (const row of activity.querySelectorAll("tbody tr")) {
+        if (row.hidden) continue;
+        const name = row.dataset.place;
+        if (!name) continue;
+        counts.set(name, (counts.get(name) || 0) + 1);
+      }
+    }
+    return counts;
+  }
+
+  function updateMap() {
+    markers.clearLayers();
+    const counts = visiblePlaces();
+    const bounds = [];
+    const placeCoords = window.__placeCoords || {};
+    for (const [name, count] of counts) {
+      const coord = placeCoords[name];
+      if (!coord) continue;
+      const kind = coord.kind || "other";
+      const marker = L.marker([coord.lat, coord.lng], {
+        icon: circleIcon(kind),
+        zIndexOffset: kind === "rec_center" ? 1000 : 0,
+      });
+      const kindLabel = kind === "rec_center" ? "Rec center" : "Other site";
+      marker.bindPopup(
+        `<strong>${name}</strong><br>${kindLabel}<br>${count} session${count === 1 ? "" : "s"} visible` +
+        `<br><button type="button" data-filter-place="${name.replace(/"/g, "&quot;")}">Filter to this place</button>`
+      );
+      marker.on("popupopen", (e) => {
+        const btn = e.popup.getElement().querySelector("[data-filter-place]");
+        if (!btn) return;
+        btn.addEventListener("click", () => {
+          place.value = btn.getAttribute("data-filter-place");
+          apply();
+        }, { once: true });
+      });
+      markers.addLayer(marker);
+      bounds.push([coord.lat, coord.lng]);
+    }
+    const mapped = bounds.length;
+    const unmapped = [...counts.keys()].filter((n) => !placeCoords[n]).length;
+    if (bounds.length === 1) map.setView(bounds[0], 13);
+    else if (bounds.length > 1) map.fitBounds(bounds, { padding: [28, 28], maxZoom: 13 });
+    mapNote.textContent = mapped
+      ? `${mapped} location${mapped === 1 ? "" : "s"} on map` +
+        (unmapped ? ` · ${unmapped} without coordinates` : "")
+      : "No mapped locations match the current filters.";
+    setTimeout(() => map.invalidateSize(), 0);
+  }
+
+  function syncUrl() {
+    const params = new URLSearchParams();
+    for (const key of FILTER_KEYS) {
+      const value = fields[key].value.trim();
+      if (value) params.set(key, value);
+    }
+    const query = params.toString();
+    const next = query ? `${location.pathname}?${query}` : location.pathname;
+    if (`${location.pathname}${location.search}` !== next) {
+      history.replaceState(null, "", next);
+    }
+  }
+
+  function readUrl() {
+    const params = new URLSearchParams(location.search);
+    for (const key of FILTER_KEYS) {
+      const value = params.get(key);
+      if (value !== null) fields[key].value = value;
+    }
+  }
+
+  function apply() {
+    // Drop selections that have zero hits under the other filters.
+    refreshFilterOptions();
+
+    const needle = q.value.trim().toLowerCase();
+    const ag = age.value;
+    const cat = category.value;
+    const pl = place.value;
+    const st = status.value;
+    const activities = [...catalog.querySelectorAll(".activity")];
+    const sections = [...catalog.querySelectorAll(".category")];
+    let shown = 0;
+
+    for (const activity of activities) {
+      const rows = [...activity.querySelectorAll("tbody tr")];
+      let anyRow = false;
+      for (const row of rows) {
+        const ok =
+          hasToken(row.dataset.ages, ag) &&
+          (!pl || row.dataset.place === pl) &&
+          (!st || row.dataset.status === st);
+        row.hidden = !ok;
+        if (ok) anyRow = true;
+      }
+      const visible =
+        (!cat || activity.dataset.category === cat) &&
+        (!needle || (activity.dataset.search || "").includes(needle)) &&
+        hasToken(activity.dataset.ages, ag) &&
+        hasToken(activity.dataset.places, pl) &&
+        hasToken(activity.dataset.statuses, st) &&
+        (rows.length === 0 || anyRow);
+      activity.hidden = !visible;
+      if (visible) shown += 1;
+    }
+
+    for (const section of sections) {
+      const kids = [...section.querySelectorAll(".activity")];
+      const n = kids.filter((a) => !a.hidden).length;
+      section.hidden = n === 0;
+      const count = section.querySelector("[data-count]");
+      if (count) count.textContent = `(${n})`;
+    }
+
+    empty.classList.toggle("show", shown === 0 && activities.length > 0);
+    visibleCount.textContent = activities.length
+      ? `Showing ${shown} of ${activities.length} activities`
+      : "";
+    updateMap();
+    syncUrl();
+  }
+
+  for (const el of [q, age, category, place, status]) el.addEventListener("input", apply);
+  reset.addEventListener("click", () => {
+    q.value = "";
+    age.value = "";
+    category.value = "";
+    place.value = "";
+    status.value = "";
+    apply();
+  });
+  window.addEventListener("popstate", () => {
+    for (const key of FILTER_KEYS) fields[key].value = "";
+    readUrl();
+    apply();
+  });
+
+  try {
+    if (!window.__FCPA_DATA__ || !Array.isArray(window.__FCPA_DATA__.activities)) {
+      throw new Error("Catalog data is missing. Run python main.py to generate data.js");
+    }
+    render(window.__FCPA_DATA__);
+  } catch (err) {
+    meta.textContent = "";
+    catalog.innerHTML = `<p class="error">${escapeHtml(err.message)}</p>`;
+  }
+})();
+</script>
+</body>
+</html>
