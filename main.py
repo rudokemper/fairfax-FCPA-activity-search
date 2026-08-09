@@ -3,13 +3,14 @@
 The activity search at Fairfax County Park Authority is an ASP.NET WebForms page
 that forces you to pick a single category, then paginates the results. This script
 sweeps every category for one age range, follows the pagination postbacks, and
-writes a single grouped Markdown report.
+writes a self-contained HTML report with search and filters.
 """
 
 from __future__ import annotations
 
 import argparse
 import html
+import json
 import re
 import sys
 import time
@@ -19,6 +20,8 @@ from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
+
+_ROOT = Path(__file__).resolve().parent
 
 BASE_URL = "https://fairfax.usedirect.com/FairfaxFCPAWeb/Activities/Search.aspx"
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; fcpa-activity-scraper/1.0)"}
@@ -141,6 +144,20 @@ PLACES = {
     "8045": "West Springfield Elementary School",
     "8044": "Woodson High School",
 }
+
+def _load_place_coords() -> dict[str, dict[str, float]]:
+    path = _ROOT / "place_coords.json"
+    if not path.exists():
+        return {}
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    return {
+        name: {"lat": float(entry["lat"]), "lng": float(entry["lng"])}
+        for name, entry in raw.items()
+        if "lat" in entry and "lng" in entry
+    }
+
+
+PLACE_COORDS = _load_place_coords()
 
 # Fixed, broadest default filters (place is configurable via --place).
 DEFAULT_FILTERS = {
@@ -422,42 +439,453 @@ def merge_activity(merged: dict[str, Activity], activity: Activity) -> None:
     existing.sessions.extend(s for s in activity.sessions if s.session not in have)
 
 
-def to_markdown(
+def _escape(text: str) -> str:
+    return html.escape(text, quote=True)
+
+
+def _activity_search_blob(activity: Activity) -> str:
+    parts = [activity.title, activity.description]
+    for s in activity.sessions:
+        parts.extend((s.session, s.place, s.schedule, s.ages, s.seats, s.signup, s.status))
+    return " ".join(parts).lower()
+
+
+def to_html(
     results: dict[str, list[Activity]], age_option: str, place_label: str, today: str
 ) -> str:
     total = sum(len(items) for items in results.values())
-    lines = [
-        f"# Fairfax FCPA Activities \u2014 {age_option}",
-        "",
-        f"Generated {today} \u00b7 {total} activities across {len(results)} categories.",
-        "",
-        (
-            f"Filters: {place_label}, All Months, all days of the week, any instructor, "
-            f"starting on or after {today}."
-        ),
-        "",
-    ]
+    categories = [c for c, acts in results.items() if acts]
+    places = sorted(
+        {
+            s.place
+            for acts in results.values()
+            for a in acts
+            for s in a.sessions
+            if s.place
+        }
+    )
+    statuses = sorted(
+        {
+            s.status
+            for acts in results.values()
+            for a in acts
+            for s in a.sessions
+            if s.status
+        }
+    )
+
+    category_options = "\n".join(
+        f'<option value="{_escape(c)}">{_escape(c)}</option>' for c in categories
+    )
+    place_options = "\n".join(
+        f'<option value="{_escape(p)}">{_escape(p)}</option>' for p in places
+    )
+    status_options = "\n".join(
+        f'<option value="{_escape(s)}">{_escape(s)}</option>' for s in statuses
+    )
+    place_coords = {
+        name: PLACE_COORDS[name]
+        for name in places
+        if name in PLACE_COORDS
+    }
+    place_coords_json = json.dumps(place_coords, separators=(",", ":"))
+
+    sections: list[str] = []
     for category, activities in results.items():
-        lines.append(f"## {category} ({len(activities)})")
-        lines.append("")
         if not activities:
-            lines.append("_(none)_")
-            lines.append("")
             continue
+        cards: list[str] = []
         for activity in activities:
-            lines.append(f"### {activity.title}")
-            lines.append("")
-            if activity.description:
-                lines.append(activity.description)
-                lines.append("")
-            if activity.sessions:
-                lines.append("| Session | Place | Schedule | Ages | Seats | Sign Up | Status |")
-                lines.append("| --- | --- | --- | --- | --- | --- | --- |")
-                for s in activity.sessions:
-                    cells = (s.session, s.place, s.schedule, s.ages, s.seats, s.signup, s.status)
-                    lines.append("| " + " | ".join(c.replace("|", "\\|") for c in cells) + " |")
-                lines.append("")
-    return "\n".join(lines).rstrip() + "\n"
+            session_rows = []
+            for s in activity.sessions:
+                session_rows.append(
+                    "<tr"
+                    f' data-place="{_escape(s.place)}"'
+                    f' data-status="{_escape(s.status)}">'
+                    f"<td>{_escape(s.session)}</td>"
+                    f"<td>{_escape(s.place)}</td>"
+                    f"<td>{_escape(s.schedule)}</td>"
+                    f"<td>{_escape(s.ages)}</td>"
+                    f"<td>{_escape(s.seats)}</td>"
+                    f"<td>{_escape(s.signup)}</td>"
+                    f"<td>{_escape(s.status)}</td>"
+                    "</tr>"
+                )
+            places_attr = "|".join(sorted({s.place for s in activity.sessions if s.place}))
+            statuses_attr = "|".join(sorted({s.status for s in activity.sessions if s.status}))
+            desc = (
+                f'<p class="desc">{_escape(activity.description)}</p>'
+                if activity.description
+                else ""
+            )
+            table = (
+                "<div class='table-wrap'><table>"
+                "<thead><tr>"
+                "<th>Session</th><th>Place</th><th>Schedule</th><th>Ages</th>"
+                "<th>Seats</th><th>Sign Up</th><th>Status</th>"
+                "</tr></thead>"
+                f"<tbody>{''.join(session_rows)}</tbody>"
+                "</table></div>"
+                if session_rows
+                else "<p class='muted'>No session rows.</p>"
+            )
+            cards.append(
+                "<article class='activity'"
+                f' data-category="{_escape(category)}"'
+                f' data-places="{_escape(places_attr)}"'
+                f' data-statuses="{_escape(statuses_attr)}"'
+                f' data-search="{_escape(_activity_search_blob(activity))}">'
+                f"<h3>{_escape(activity.title)}</h3>"
+                f"{desc}{table}"
+                "</article>"
+            )
+        sections.append(
+            f"<section class='category' data-category='{_escape(category)}'>"
+            f"<h2>{_escape(category)} "
+            f"<span class='count' data-count='{len(activities)}'>({len(activities)})</span></h2>"
+            f"{''.join(cards)}"
+            "</section>"
+        )
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fairfax FCPA Activities — {_escape(age_option)}</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+:root {{
+  --bg: #f4f6f4;
+  --ink: #1c2420;
+  --muted: #5c6a62;
+  --line: #d5ddd7;
+  --panel: #ffffff;
+  --accent: #0f6a4f;
+  --accent-soft: #e5f3ec;
+  --warn: #8a5a00;
+}}
+* {{ box-sizing: border-box; }}
+body {{
+  margin: 0;
+  font: 16px/1.45 "Source Sans 3", "Segoe UI", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 500px at 10% -10%, #dceee4 0%, transparent 55%),
+    var(--bg);
+}}
+header {{
+  padding: 1.5rem 1.25rem 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}}
+h1 {{
+  margin: 0 0 0.35rem;
+  font: 700 1.75rem/1.2 "Fraunces", Georgia, serif;
+  letter-spacing: -0.02em;
+}}
+.meta, .muted {{ color: var(--muted); }}
+.meta {{ margin: 0 0 0.75rem; }}
+.filters {{
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: color-mix(in srgb, var(--bg) 88%, white);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+  padding: 0.75rem 1.25rem;
+}}
+.filters-inner {{
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
+  align-items: end;
+}}
+label {{
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}}
+input, select, button {{
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  background: var(--panel);
+}}
+input:focus, select:focus {{
+  outline: 2px solid color-mix(in srgb, var(--accent) 45%, white);
+  border-color: var(--accent);
+}}
+button {{
+  cursor: pointer;
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+  color: var(--accent);
+  font-weight: 650;
+}}
+#visible-count {{
+  max-width: 1100px;
+  margin: 0.75rem auto 0;
+  padding: 0 1.25rem;
+  font-size: 0.95rem;
+  color: var(--muted);
+}}
+.map-panel {{
+  max-width: 1100px;
+  margin: 0.85rem auto 0;
+  padding: 0 1.25rem;
+}}
+.map-panel h2 {{
+  margin: 0 0 0.45rem;
+  font: 650 1rem/1.3 "Fraunces", Georgia, serif;
+}}
+#map {{
+  height: 320px;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #dde5df;
+  z-index: 1;
+}}
+.map-note {{
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}}
+main {{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem 3rem;
+}}
+.category {{ margin: 1.75rem 0; }}
+.category h2 {{
+  margin: 0 0 0.85rem;
+  font: 650 1.15rem/1.3 "Fraunces", Georgia, serif;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.4rem;
+}}
+.category h2 .count {{ color: var(--muted); font-weight: 500; }}
+.activity {{
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  margin: 0 0 0.85rem;
+}}
+.activity h3 {{
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}}
+.desc {{ margin: 0 0 0.75rem; color: var(--muted); }}
+.table-wrap {{ overflow-x: auto; }}
+table {{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}}
+th, td {{
+  text-align: left;
+  vertical-align: top;
+  padding: 0.45rem 0.55rem;
+  border-top: 1px solid var(--line);
+}}
+th {{
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  border-top: 0;
+}}
+tr[hidden] {{ display: none; }}
+.empty {{
+  display: none;
+  margin: 2rem 0;
+  padding: 1.25rem;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  color: var(--warn);
+  background: #fff9ef;
+}}
+.empty.show {{ display: block; }}
+@media (max-width: 900px) {{
+  .filters-inner {{ grid-template-columns: 1fr 1fr; }}
+}}
+@media (max-width: 560px) {{
+  .filters-inner {{ grid-template-columns: 1fr; }}
+  #map {{ height: 260px; }}
+}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Fairfax FCPA Activities — {_escape(age_option)}</h1>
+  <p class="meta">Generated {_escape(today)} · {total} activities across {len(results)} categories.</p>
+  <p class="meta">Scraped filters: {_escape(place_label)}, All Months, all days, any instructor, starting on or after {_escape(today)}.</p>
+</header>
+<div class="filters">
+  <div class="filters-inner">
+    <label>Search
+      <input id="q" type="search" placeholder="Title, description, session, place…" autocomplete="off">
+    </label>
+    <label>Category
+      <select id="category"><option value="">All categories</option>{category_options}</select>
+    </label>
+    <label>Place
+      <select id="place"><option value="">All places</option>{place_options}</select>
+    </label>
+    <label>Status
+      <select id="status"><option value="">All statuses</option>{status_options}</select>
+    </label>
+    <label>&nbsp;<button type="button" id="reset">Reset</button></label>
+  </div>
+</div>
+<p id="visible-count"></p>
+<section class="map-panel">
+  <h2>Locations</h2>
+  <div id="map" role="img" aria-label="Map of activity locations"></div>
+  <p class="map-note" id="map-note"></p>
+</section>
+<main>
+  <div id="empty" class="empty">No activities match the current filters.</div>
+  {''.join(sections)}
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(() => {{
+  const q = document.getElementById("q");
+  const category = document.getElementById("category");
+  const place = document.getElementById("place");
+  const status = document.getElementById("status");
+  const reset = document.getElementById("reset");
+  const empty = document.getElementById("empty");
+  const visibleCount = document.getElementById("visible-count");
+  const mapNote = document.getElementById("map-note");
+  const activities = [...document.querySelectorAll(".activity")];
+  const sections = [...document.querySelectorAll(".category")];
+  const placeCoords = {place_coords_json};
+
+  const map = L.map("map", {{ scrollWheelZoom: false }}).setView([38.85, -77.27], 10);
+  L.tileLayer("https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png", {{
+    maxZoom: 18,
+    attribution: "&copy; OpenStreetMap",
+  }}).addTo(map);
+  const markers = L.layerGroup().addTo(map);
+
+  function visiblePlaces() {{
+    const counts = new Map();
+    for (const activity of activities) {{
+      if (activity.hidden) continue;
+      for (const row of activity.querySelectorAll("tbody tr")) {{
+        if (row.hidden) continue;
+        const name = row.dataset.place;
+        if (!name) continue;
+        counts.set(name, (counts.get(name) || 0) + 1);
+      }}
+    }}
+    return counts;
+  }}
+
+  function updateMap() {{
+    markers.clearLayers();
+    const counts = visiblePlaces();
+    const bounds = [];
+    for (const [name, count] of counts) {{
+      const coord = placeCoords[name];
+      if (!coord) continue;
+      const marker = L.marker([coord.lat, coord.lng]);
+      marker.bindPopup(
+        `<strong>${{name}}</strong><br>${{count}} session${{count === 1 ? "" : "s"}} visible` +
+        `<br><button type="button" data-filter-place="${{name.replace(/"/g, "&quot;")}}">Filter to this place</button>`
+      );
+      marker.on("popupopen", (e) => {{
+        const btn = e.popup.getElement().querySelector("[data-filter-place]");
+        if (!btn) return;
+        btn.addEventListener("click", () => {{
+          place.value = btn.getAttribute("data-filter-place");
+          apply();
+        }}, {{ once: true }});
+      }});
+      markers.addLayer(marker);
+      bounds.push([coord.lat, coord.lng]);
+    }}
+    const mapped = bounds.length;
+    const unmapped = [...counts.keys()].filter((n) => !placeCoords[n]).length;
+    if (bounds.length === 1) {{
+      map.setView(bounds[0], 13);
+    }} else if (bounds.length > 1) {{
+      map.fitBounds(bounds, {{ padding: [28, 28], maxZoom: 13 }});
+    }}
+    mapNote.textContent = mapped
+      ? `${{mapped}} location${{mapped === 1 ? "" : "s"}} on map` +
+        (unmapped ? ` · ${{unmapped}} without coordinates` : "")
+      : "No mapped locations match the current filters.";
+    setTimeout(() => map.invalidateSize(), 0);
+  }}
+
+  function apply() {{
+    const needle = q.value.trim().toLowerCase();
+    const cat = category.value;
+    const pl = place.value;
+    const st = status.value;
+    let shown = 0;
+
+    for (const activity of activities) {{
+      const rows = [...activity.querySelectorAll("tbody tr")];
+      let anyRow = false;
+      for (const row of rows) {{
+        const placeOk = !pl || row.dataset.place === pl;
+        const statusOk = !st || row.dataset.status === st;
+        const ok = placeOk && statusOk;
+        row.hidden = !ok;
+        if (ok) anyRow = true;
+      }}
+      const catOk = !cat || activity.dataset.category === cat;
+      const searchOk = !needle || (activity.dataset.search || "").includes(needle);
+      const placeOnCard = !pl || (activity.dataset.places || "").split("|").includes(pl);
+      const statusOnCard = !st || (activity.dataset.statuses || "").split("|").includes(st);
+      const visible = catOk && searchOk && placeOnCard && statusOnCard && (rows.length === 0 || anyRow);
+      activity.hidden = !visible;
+      if (visible) shown += 1;
+    }}
+
+    for (const section of sections) {{
+      const kids = [...section.querySelectorAll(".activity")];
+      const n = kids.filter(a => !a.hidden).length;
+      section.hidden = n === 0;
+      const count = section.querySelector("[data-count]");
+      if (count) count.textContent = `(${{n}})`;
+    }}
+
+    empty.classList.toggle("show", shown === 0);
+    visibleCount.textContent = `Showing ${{shown}} of ${{activities.length}} activities`;
+    updateMap();
+  }}
+
+  for (const el of [q, category, place, status]) el.addEventListener("input", apply);
+  reset.addEventListener("click", () => {{
+    q.value = "";
+    category.value = "";
+    place.value = "";
+    status.value = "";
+    apply();
+  }});
+  apply();
+}})();
+</script>
+</body>
+</html>
+"""
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -484,7 +912,7 @@ def main(argv: list[str] | None = None) -> None:
         _slugify(label) for _, label in places
     )
     output = args.output or (
-        Path(__file__).parent / "outputs" / f"activities_{slug}{place_suffix}.md"
+        _ROOT / "outputs" / f"activities_{slug}{place_suffix}.html"
     )
     output.parent.mkdir(parents=True, exist_ok=True)
 
@@ -504,7 +932,7 @@ def main(argv: list[str] | None = None) -> None:
             print(f"{category_name}: {len(merged)} activities", file=sys.stderr)
 
     output.write_text(
-        to_markdown(results, age_option, place_label, today), encoding="utf-8"
+        to_html(results, age_option, place_label, today), encoding="utf-8"
     )
     total = sum(len(items) for items in results.values())
     print(f"Wrote {total} activities to {output}", file=sys.stderr)

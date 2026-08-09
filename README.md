@@ -6,7 +6,8 @@ and then paginates them. Browsing everything for one age group means clicking
 through 37 categories and their pages by hand.
 
 `main.py` does that sweep for you: it queries every category for one age range,
-follows the pagination, and writes a single grouped Markdown report.
+follows the pagination, and writes a self-contained HTML report with search and
+filters.
 
 ## How it works
 
@@ -20,7 +21,7 @@ The page is ASP.NET WebForms with server-rendered results, so the script:
    that reuses the view-state returned by the previous page, until the last page
    (`Now Displaying page X Of N`).
 4. Parses each activity card (title, description, and its session table) and
-   emits Markdown.
+   emits HTML.
 
 ### Filters
 
@@ -42,7 +43,7 @@ its widest:
 ```bash
 pip install -r requirements.txt
 
-# Default: Infant/Toddler (0 - 2 yrs) -> outputs/activities_infant.md
+# Default: Infant/Toddler (0 - 2 yrs) -> outputs/activities_infant.html
 python main.py
 
 # Another age range by slug or exact label
@@ -69,7 +70,7 @@ python main.py --list-categories
 | `-a`, `--age-range` | Age range slug or exact option string | `infant` |
 | `-p`, `--place` | Comma-separated place ids, exact names, or substrings | All Places |
 | `-x`, `--exclude-category` | Comma-separated category ids, names, or substrings to skip | none |
-| `-o`, `--output` | Output Markdown path | `outputs/activities_<slug>[_<place>].md` |
+| `-o`, `--output` | Output HTML path | `outputs/activities_<slug>[_<place>].html` |
 | `--delay` | Seconds between requests | `0.3` |
 | `--max-pages` | Pagination safety cap per category | `50` |
 | `--list-age-ranges` | Print age range choices and exit | |
@@ -80,7 +81,17 @@ Age range slugs: `all`, `infant`, `preschool`, `child`, `teen`, `adult`, `senior
 
 ## Output
 
-A single Markdown file, written to `outputs/` (git-ignored), with one section per
-category (`## CATEGORY (count)`), each activity as `### Title` plus a session
-table of Session / Place / Schedule / Ages / Seats / Sign Up / Status. Categories
-with no matching activities show as `(none)`.
+A single HTML file in `outputs/` (git-ignored). Open it in a browser — no server
+required (Leaflet/OSM load from CDN). The sticky toolbar includes:
+
+- **Search** across title, description, session, place, schedule, ages, status
+- **Category**, **Place**, and **Status** dropdowns
+- A live “Showing X of Y” count and Reset
+- A **Leaflet map** of locations that match the current filters (all places in
+  the result set by default; narrows when you filter Place/search/etc.). Click a
+  marker → **Filter to this place**.
+
+Empty categories are omitted. Session rows that don’t match Place/Status are
+hidden within an activity; the activity itself disappears when no rows remain.
+
+Coordinates live in `place_coords.json` (keyed by place name).
