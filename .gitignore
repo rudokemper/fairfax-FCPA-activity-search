@@ -1,0 +1,22 @@
+# Generated reports
+outputs/*
+!outputs/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+.env
+.python-version
+
+# Editors / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
