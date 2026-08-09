@@ -4,8 +4,6 @@ Sweeps every official age range × every category (All Places), merges results,
 and emits catalog data for the static index.html UI.
 """
 
-from __future__ import annotations
-
 import html
 import json
 import re
@@ -123,7 +121,11 @@ def _load_place_coords() -> dict[str, dict]:
                 kind = "virtual"
             else:
                 kind = "other"
-        out[name] = {"lat": float(entry["lat"]), "lng": float(entry["lng"]), "kind": kind}
+        out[name] = {
+            "lat": float(entry["lat"]),
+            "lng": float(entry["lng"]),
+            "kind": kind,
+        }
     return out
 
 
@@ -202,7 +204,10 @@ def _request(session: requests.Session, method: str, url: str, **kwargs) -> str:
         except (requests.RequestException, RuntimeError) as exc:
             last_error = exc
         sleep_for = RETRY_BACKOFF * attempt
-        print(f"retry {attempt}/{MAX_RETRIES} after {sleep_for:.0f}s: {last_error}", file=sys.stderr)
+        print(
+            f"retry {attempt}/{MAX_RETRIES} after {sleep_for:.0f}s: {last_error}",
+            file=sys.stderr,
+        )
         time.sleep(sleep_for)
         # Re-warm cookies between retries.
         try:
