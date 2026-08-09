@@ -3,7 +3,7 @@
 Compiles the full [Fairfax County Park Authority activity catalog](https://fairfax.usedirect.com/FairfaxFCPAWeb/ACTIVITIES/Search.aspx) into `data.js` and provides a
 filterable `index.html` (search, age/category/place/status, Leaflet map, shareable URL with query params).
 
-Published via GitHub Pages (`publish.yml` deploys `index.html` + `data.js` on push to `main`).
+Published via GitHub Pages (`publish.yml` deploys `index.html`, `styles.css`, and `data.js` on push to `main`).
 
 ## Why the catalog is updated locally
 
