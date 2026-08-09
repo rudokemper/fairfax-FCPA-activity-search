@@ -49,9 +49,23 @@ h1 {
   border-radius: 10px;
   color: var(--ink);
 }
-.howto a {
+.howto a, .github-link {
   color: var(--accent);
   font-weight: 650;
+}
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.35rem 0 0;
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+.github-link:hover { text-decoration: underline; }
+.github-link svg {
+  flex: 0 0 auto;
+  width: 1.15rem;
+  height: 1.15rem;
 }
 .filters {
   position: sticky;
@@ -62,13 +76,60 @@ h1 {
   border-bottom: 1px solid var(--line);
   padding: 0.75rem 1.25rem;
 }
-.filters-inner {
+.filters-bar {
   max-width: 1100px;
   margin: 0 auto;
   display: grid;
+  grid-template-columns: minmax(0, 1.6fr) auto;
   gap: 0.65rem;
-  grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr auto;
   align-items: end;
+}
+.filters-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+}
+.filters-toggle-text { flex: 0 0 auto; }
+.filters-summary {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.85rem;
+}
+.filters-summary:empty { display: none; }
+.filters-chevron {
+  flex: 0 0 auto;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  margin-top: -0.2rem;
+  transition: transform 0.15s ease;
+}
+.filters[aria-expanded="false"] .filters-chevron {
+  transform: rotate(-135deg);
+  margin-top: 0.15rem;
+}
+.filters-inner {
+  max-width: 1100px;
+  margin: 0.65rem auto 0;
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: 1fr 1fr 1fr 1fr auto;
+  align-items: start;
+}
+.filters[aria-expanded="false"] .filters-inner {
+  display: none;
 }
 label {
   display: grid;
@@ -92,12 +153,118 @@ input:focus, select:focus {
   outline: 2px solid color-mix(in srgb, var(--accent) 45%, white);
   border-color: var(--accent);
 }
+.mpick:focus-within {
+  outline: 2px solid color-mix(in srgb, var(--accent) 45%, white);
+  border-color: var(--accent);
+}
 button {
   cursor: pointer;
   background: var(--accent-soft);
   border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
   color: var(--accent);
   font-weight: 650;
+}
+.mpick {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 0.35rem;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  color: var(--ink);
+}
+.mpick-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0 0 0.25rem;
+}
+.mpick-chips:empty { display: none; margin: 0; }
+.mpick-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  max-width: 100%;
+  padding: 0.15rem 0.35rem 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+.mpick-chip span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mpick-chip button {
+  width: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  border-radius: 0;
+}
+.mpick-input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  padding: 0.35rem 0.4rem;
+  background: transparent;
+  font: inherit;
+}
+.mpick-input:focus {
+  outline: none;
+  border-color: transparent;
+}
+.mpick-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 1200;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  max-height: 14rem;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 10px 28px rgba(28, 36, 32, 0.12);
+}
+.mpick-menu[hidden] { display: none; }
+.mpick-option {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.mpick-option:hover, .mpick-option[aria-selected="true"] {
+  background: var(--accent-soft);
+}
+.mpick-check {
+  width: 1rem;
+  text-align: center;
+  color: var(--accent);
+  font-weight: 700;
+}
+.mpick-empty {
+  padding: 0.55rem 0.6rem;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 #visible-count {
   max-width: 1100px;
@@ -210,7 +377,9 @@ tr[hidden], .activity[hidden], .category[hidden] { display: none; }
 }
 .error { color: var(--warn); }
 @media (max-width: 1000px) {
-  .filters-inner { grid-template-columns: 1fr 1fr 1fr; }
+  .filters-bar { grid-template-columns: 1fr; }
+  .filters-toggle { width: 100%; justify-content: space-between; }
+  .filters-inner { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 560px) {
   .filters-inner { grid-template-columns: 1fr; }
@@ -222,6 +391,10 @@ tr[hidden], .activity[hidden], .category[hidden] { display: none; }
 <header>
   <h1>Fairfax FCPA Activities</h1>
   <p class="meta" id="meta">Loading catalog…</p>
+  <a class="github-link" href="https://github.com/rudokemper/fairfax-FCPA-activity-search/" target="_blank" rel="noopener noreferrer">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+    View source on GitHub
+  </a>
   <p class="howto">
     This page is a browseable index of Fairfax County Park Authority classes, camps, and events.
     Use the filters below to narrow results by age, category, place, or status.
@@ -230,22 +403,29 @@ tr[hidden], .activity[hidden], .category[hidden] { display: none; }
     and sign up there.
   </p>
 </header>
-<div class="filters">
-  <div class="filters-inner">
+<div class="filters" id="filters" aria-expanded="true">
+  <div class="filters-bar">
     <label>Search
       <input id="q" type="search" placeholder="Title, description, session, place…" autocomplete="off">
     </label>
+    <button type="button" class="filters-toggle" id="filters-toggle" aria-expanded="true" aria-controls="filters-panel">
+      <span class="filters-toggle-text" id="filters-toggle-text">Hide filters</span>
+      <span class="filters-summary" id="filters-summary"></span>
+      <span class="filters-chevron" aria-hidden="true"></span>
+    </button>
+  </div>
+  <div class="filters-inner" id="filters-panel">
     <label>Age range
       <select id="age"><option value="">All ages</option></select>
     </label>
     <label>Category
-      <select id="category"><option value="">All categories</option></select>
+      <div class="mpick" id="category" data-placeholder="Search categories…"></div>
     </label>
     <label>Place
-      <select id="place"><option value="">All places</option></select>
+      <div class="mpick" id="place" data-placeholder="Search places…"></div>
     </label>
     <label>Status
-      <select id="status"><option value="">All statuses</option></select>
+      <div class="mpick" id="status" data-placeholder="Search statuses…"></div>
     </label>
     <label>&nbsp;<button type="button" id="reset">Reset</button></label>
   </div>
@@ -271,9 +451,6 @@ tr[hidden], .activity[hidden], .category[hidden] { display: none; }
 (() => {
   const q = document.getElementById("q");
   const age = document.getElementById("age");
-  const category = document.getElementById("category");
-  const place = document.getElementById("place");
-  const status = document.getElementById("status");
   const reset = document.getElementById("reset");
   const empty = document.getElementById("empty");
   const visibleCount = document.getElementById("visible-count");
@@ -281,8 +458,35 @@ tr[hidden], .activity[hidden], .category[hidden] { display: none; }
   const catalog = document.getElementById("catalog");
   const meta = document.getElementById("meta");
   const searchLink = document.getElementById("search-link");
-  const FILTER_KEYS = ["q", "age", "category", "place", "status"];
-  const fields = { q, age, category, place, status };
+  const filtersEl = document.getElementById("filters");
+  const filtersToggle = document.getElementById("filters-toggle");
+  const filtersToggleText = document.getElementById("filters-toggle-text");
+  const filtersSummary = document.getElementById("filters-summary");
+  const MULTI_KEYS = ["category", "place", "status"];
+  /** Values from the URL, applied on the next option rebuild. */
+  let urlSeed = null;
+  let suppressApply = false;
+  const narrowFilters = window.matchMedia("(max-width: 1000px)");
+
+  function setFiltersExpanded(open) {
+    const value = open ? "true" : "false";
+    filtersEl.setAttribute("aria-expanded", value);
+    filtersToggle.setAttribute("aria-expanded", value);
+    filtersToggleText.textContent = open ? "Hide filters" : "Show filters";
+    setTimeout(() => map.invalidateSize(), 0);
+  }
+
+  function updateFiltersSummary() {
+    const parts = [];
+    if (age.value) parts.push(age.value);
+    const nCat = picks.category.values().length;
+    const nPlace = picks.place.values().length;
+    const nStatus = picks.status.values().length;
+    if (nCat) parts.push(`${nCat} categor${nCat === 1 ? "y" : "ies"}`);
+    if (nPlace) parts.push(`${nPlace} place${nPlace === 1 ? "" : "s"}`);
+    if (nStatus) parts.push(`${nStatus} status${nStatus === 1 ? "" : "es"}`);
+    filtersSummary.textContent = parts.join(" · ");
+  }
 
   const map = L.map("map", { scrollWheelZoom: false }).setView([38.85, -77.27], 10);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -307,59 +511,239 @@ tr[hidden], .activity[hidden], .category[hidden] { display: none; }
     });
   }
 
-  function fillSelect(select, values, allLabel) {
-    const prev = select.value;
-    select.innerHTML = `<option value="">${escapeHtml(allLabel)}</option>` +
-      values.map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
-    select.value = prev && values.includes(prev) ? prev : "";
+  function createMultiPick(root) {
+    const placeholder = root.dataset.placeholder || "Search…";
+    const selected = new Set();
+    let options = [];
+    let query = "";
+    let open = false;
+
+    root.innerHTML = `
+      <div class="mpick-chips"></div>
+      <input class="mpick-input" type="search" placeholder="${escapeHtml(placeholder)}" autocomplete="off" role="combobox" aria-expanded="false" aria-autocomplete="list">
+      <ul class="mpick-menu" role="listbox" hidden></ul>
+    `;
+    const chips = root.querySelector(".mpick-chips");
+    const input = root.querySelector(".mpick-input");
+    const menu = root.querySelector(".mpick-menu");
+
+    function values() {
+      return [...selected];
+    }
+
+    function notify() {
+      if (!suppressApply) apply();
+    }
+
+    function renderChips() {
+      chips.innerHTML = values().map((v) =>
+        `<span class="mpick-chip"><span title="${escapeHtml(v)}">${escapeHtml(v)}</span>` +
+        `<button type="button" data-remove="${escapeHtml(v)}" aria-label="Remove ${escapeHtml(v)}">×</button></span>`
+      ).join("");
+    }
+
+    function filteredOptions() {
+      const needle = query.trim().toLowerCase();
+      return needle ? options.filter((v) => v.toLowerCase().includes(needle)) : options;
+    }
+
+    function renderMenu() {
+      const items = filteredOptions();
+      if (!items.length) {
+        menu.innerHTML = `<li class="mpick-empty">No matches</li>`;
+        return;
+      }
+      menu.innerHTML = items.map((v) => {
+        const on = selected.has(v);
+        return `<li><button type="button" class="mpick-option" role="option" data-value="${escapeHtml(v)}" aria-selected="${on}">` +
+          `<span class="mpick-check">${on ? "✓" : ""}</span><span>${escapeHtml(v)}</span></button></li>`;
+      }).join("");
+    }
+
+    function setOpen(next) {
+      open = next;
+      menu.hidden = !open;
+      input.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open) renderMenu();
+    }
+
+    function setOptions(next) {
+      options = next;
+      const allowed = new Set(next);
+      let changed = false;
+      for (const v of [...selected]) {
+        if (!allowed.has(v)) {
+          selected.delete(v);
+          changed = true;
+        }
+      }
+      renderChips();
+      if (open) renderMenu();
+      return changed;
+    }
+
+    function setValues(list) {
+      selected.clear();
+      for (const v of list || []) if (v) selected.add(v);
+      renderChips();
+      if (open) renderMenu();
+    }
+
+    function clear() {
+      if (!selected.size) return;
+      selected.clear();
+      query = "";
+      input.value = "";
+      renderChips();
+      if (open) renderMenu();
+    }
+
+    function setOnly(value) {
+      selected.clear();
+      if (value) selected.add(value);
+      query = "";
+      input.value = "";
+      renderChips();
+      if (open) renderMenu();
+    }
+
+    function toggle(value) {
+      if (selected.has(value)) selected.delete(value);
+      else selected.add(value);
+      query = "";
+      input.value = "";
+      renderChips();
+      renderMenu();
+      notify();
+    }
+
+    input.addEventListener("focus", () => setOpen(true));
+    input.addEventListener("input", () => {
+      query = input.value;
+      setOpen(true);
+      renderMenu();
+    });
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        input.blur();
+      } else if (e.key === "Backspace" && !input.value && selected.size) {
+        const last = values().at(-1);
+        selected.delete(last);
+        renderChips();
+        if (open) renderMenu();
+        notify();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        const first = filteredOptions()[0];
+        if (first) toggle(first);
+      }
+    });
+    chips.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-remove]");
+      if (!btn) return;
+      selected.delete(btn.getAttribute("data-remove"));
+      renderChips();
+      if (open) renderMenu();
+      notify();
+    });
+    menu.addEventListener("mousedown", (e) => e.preventDefault());
+    menu.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-value]");
+      if (!btn) return;
+      toggle(btn.getAttribute("data-value"));
+      input.focus();
+    });
+    document.addEventListener("click", (e) => {
+      if (!root.contains(e.target)) setOpen(false);
+    });
+
+    return { values, setOptions, setValues, clear, setOnly };
   }
 
-  function sessionMatches(activity, session, { ag, cat, pl, st, needle }) {
+  const picks = {
+    category: createMultiPick(document.getElementById("category")),
+    place: createMultiPick(document.getElementById("place")),
+    status: createMultiPick(document.getElementById("status")),
+  };
+
+  function fillSelect(select, values, allLabel) {
+    const prefer = (urlSeed && urlSeed.age) || select.value;
+    select.innerHTML = `<option value="">${escapeHtml(allLabel)}</option>` +
+      values.map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+    select.value = prefer && values.includes(prefer) ? prefer : "";
+  }
+
+  function inList(selected, value) {
+    return !selected.length || selected.includes(value);
+  }
+
+  function intersects(selected, pipeList) {
+    if (!selected.length) return true;
+    const have = new Set((pipeList || "").split("|").filter(Boolean));
+    return selected.some((v) => have.has(v));
+  }
+
+  function sessionMatches(activity, session, { ag, cats, places, statuses, needle }) {
     if (needle && !(activity._search || "").includes(needle)) return false;
-    if (cat && activity.category !== cat) return false;
-    if (pl && session.place !== pl) return false;
-    if (st && session.status !== st) return false;
+    if (!inList(cats, activity.category)) return false;
+    if (!inList(places, session.place)) return false;
+    if (!inList(statuses, session.status)) return false;
     if (ag && !(session.age_ranges || []).includes(ag)) return false;
     return true;
+  }
+
+  function currentFilters() {
+    return {
+      needle: q.value.trim().toLowerCase(),
+      // age <select> may still be empty on first paint; prefer URL seed.
+      ag: age.value || (urlSeed && urlSeed.age) || "",
+      cats: picks.category.values(),
+      places: picks.place.values(),
+      statuses: picks.status.values(),
+    };
   }
 
   /** Rebuild every dropdown from sessions that still match the other filters. */
   function refreshFilterOptions() {
     const data = window.__FCPA_DATA__;
     if (!data) return;
-    const needle = q.value.trim().toLowerCase();
-    const ag = age.value;
-    const cat = category.value;
-    const pl = place.value;
-    const st = status.value;
+
+    // Apply URL selections before cascading, so option lists respect them.
+    suppressApply = true;
+    if (urlSeed) {
+      for (const key of MULTI_KEYS) picks[key].setValues(urlSeed[key] || []);
+    }
+
+    const { needle, ag, cats, places: pls, statuses: sts } = currentFilters();
     const ages = new Set();
     const categories = new Set();
-    const places = new Set();
-    const statuses = new Set();
+    const placeNames = new Set();
+    const statusNames = new Set();
 
     for (const activity of data.activities) {
       for (const session of activity.sessions) {
-        // Each set ignores its own dimension so the user can change that filter.
-        if (sessionMatches(activity, session, { ag: "", cat, pl, st, needle })) {
+        if (sessionMatches(activity, session, { ag: "", cats, places: pls, statuses: sts, needle })) {
           for (const a of session.age_ranges || []) ages.add(a);
         }
-        if (sessionMatches(activity, session, { ag, cat: "", pl, st, needle })) {
+        if (sessionMatches(activity, session, { ag, cats: [], places: pls, statuses: sts, needle })) {
           categories.add(activity.category);
         }
-        if (sessionMatches(activity, session, { ag, cat, pl: "", st, needle })) {
-          if (session.place) places.add(session.place);
+        if (sessionMatches(activity, session, { ag, cats, places: [], statuses: sts, needle })) {
+          if (session.place) placeNames.add(session.place);
         }
-        if (sessionMatches(activity, session, { ag, cat, pl, st: "", needle })) {
-          if (session.status) statuses.add(session.status);
+        if (sessionMatches(activity, session, { ag, cats, places: pls, statuses: [], needle })) {
+          if (session.status) statusNames.add(session.status);
         }
       }
     }
 
     const ageOrder = data.age_ranges || [];
     fillSelect(age, ageOrder.filter((a) => ages.has(a)), "All ages");
-    fillSelect(category, [...categories].sort(), "All categories");
-    fillSelect(place, [...places].sort(), "All places");
-    fillSelect(status, [...statuses].sort(), "All statuses");
+    picks.category.setOptions([...categories].sort());
+    picks.place.setOptions([...placeNames].sort());
+    picks.status.setOptions([...statusNames].sort());
+    suppressApply = false;
   }
 
   function searchBlob(activity) {
@@ -471,7 +855,7 @@ tr[hidden], .activity[hidden], .category[hidden] { display: none; }
         const btn = e.popup.getElement().querySelector("[data-filter-place]");
         if (!btn) return;
         btn.addEventListener("click", () => {
-          place.value = btn.getAttribute("data-filter-place");
+          picks.place.setOnly(btn.getAttribute("data-filter-place"));
           apply();
         }, { once: true });
       });
@@ -491,9 +875,11 @@ tr[hidden], .activity[hidden], .category[hidden] { display: none; }
 
   function syncUrl() {
     const params = new URLSearchParams();
-    for (const key of FILTER_KEYS) {
-      const value = fields[key].value.trim();
-      if (value) params.set(key, value);
+    const qVal = q.value.trim();
+    if (qVal) params.set("q", qVal);
+    if (age.value) params.set("age", age.value);
+    for (const key of MULTI_KEYS) {
+      for (const value of picks[key].values()) params.append(key, value);
     }
     const query = params.toString();
     const next = query ? `${location.pathname}?${query}` : location.pathname;
@@ -504,21 +890,25 @@ tr[hidden], .activity[hidden], .category[hidden] { display: none; }
 
   function readUrl() {
     const params = new URLSearchParams(location.search);
-    for (const key of FILTER_KEYS) {
-      const value = params.get(key);
-      if (value !== null) fields[key].value = value;
-    }
+    q.value = params.get("q") || "";
+    urlSeed = {
+      age: params.get("age") || "",
+      category: params.getAll("category"),
+      place: params.getAll("place"),
+      status: params.getAll("status"),
+    };
   }
 
   function apply() {
     // Drop selections that have zero hits under the other filters.
     refreshFilterOptions();
+    urlSeed = null;
 
     const needle = q.value.trim().toLowerCase();
     const ag = age.value;
-    const cat = category.value;
-    const pl = place.value;
-    const st = status.value;
+    const cats = picks.category.values();
+    const pls = picks.place.values();
+    const sts = picks.status.values();
     const activities = [...catalog.querySelectorAll(".activity")];
     const sections = [...catalog.querySelectorAll(".category")];
     let shown = 0;
@@ -529,17 +919,17 @@ tr[hidden], .activity[hidden], .category[hidden] { display: none; }
       for (const row of rows) {
         const ok =
           hasToken(row.dataset.ages, ag) &&
-          (!pl || row.dataset.place === pl) &&
-          (!st || row.dataset.status === st);
+          inList(pls, row.dataset.place) &&
+          inList(sts, row.dataset.status);
         row.hidden = !ok;
         if (ok) anyRow = true;
       }
       const visible =
-        (!cat || activity.dataset.category === cat) &&
+        inList(cats, activity.dataset.category) &&
         (!needle || (activity.dataset.search || "").includes(needle)) &&
         hasToken(activity.dataset.ages, ag) &&
-        hasToken(activity.dataset.places, pl) &&
-        hasToken(activity.dataset.statuses, st) &&
+        intersects(pls, activity.dataset.places) &&
+        intersects(sts, activity.dataset.statuses) &&
         (rows.length === 0 || anyRow);
       activity.hidden = !visible;
       if (visible) shown += 1;
@@ -557,21 +947,32 @@ tr[hidden], .activity[hidden], .category[hidden] { display: none; }
     visibleCount.textContent = activities.length
       ? `Showing ${shown} of ${activities.length} activities`
       : "";
+    updateFiltersSummary();
     updateMap();
     syncUrl();
   }
 
-  for (const el of [q, age, category, place, status]) el.addEventListener("input", apply);
+  filtersToggle.addEventListener("click", () => {
+    setFiltersExpanded(filtersEl.getAttribute("aria-expanded") !== "true");
+  });
+  setFiltersExpanded(!narrowFilters.matches);
+
+  q.addEventListener("input", apply);
+  age.addEventListener("change", apply);
   reset.addEventListener("click", () => {
     q.value = "";
     age.value = "";
-    category.value = "";
-    place.value = "";
-    status.value = "";
+    suppressApply = true;
+    for (const key of MULTI_KEYS) picks[key].clear();
+    suppressApply = false;
+    urlSeed = null;
+    history.replaceState(null, "", location.pathname);
     apply();
   });
   window.addEventListener("popstate", () => {
-    for (const key of FILTER_KEYS) fields[key].value = "";
+    suppressApply = true;
+    for (const key of MULTI_KEYS) picks[key].clear();
+    suppressApply = false;
     readUrl();
     apply();
   });

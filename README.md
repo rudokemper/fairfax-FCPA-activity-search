@@ -19,7 +19,9 @@ git push         # deploys to GitHub Pages
 Scrape locally — FCPA/UseDirect returns **HTTP 403** from GitHub-hosted runners.
 
 Open `index.html` in a browser (loads `data.js` beside it). Filters sync to the
-URL (`?q=&age=&category=&place=&status=`).
+URL; category/place/status are multi-select (repeatable query params).
+
+Source: https://github.com/rudokemper/fairfax-FCPA-activity-search/
 
 ## GitHub Pages
 
